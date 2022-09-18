@@ -21,6 +21,7 @@ TEST(string) {
     EXPECT(s, eq_str("Hello, world!"));
     EXPECT((s, 4), eq_str_n("Hell"));
     EXPECT(s, contains("world"));
+    EXPECT(s, not(contains("nya")));
 }
 
 TEST(boolean) {
