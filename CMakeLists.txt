@@ -23,7 +23,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 project(cute LANGUAGES C)
 
 add_library(cute INTERFACE)
-target_include_directories(cute INTERFACE include)
+target_include_directories(cute INTERFACE .)
 
 if(EXAMPLE)
     add_executable(cute_example example.c)
