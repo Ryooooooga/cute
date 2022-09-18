@@ -19,6 +19,7 @@ TEST(string) {
     ASSERT(s, is_not_null);
     ASSERT(s, not(is_null));
     EXPECT(s, eq_str("Hello, world!"));
+    EXPECT((s, 4), eq_str_n("Hell"));
     EXPECT(s, contains("world"));
 }
 

@@ -167,10 +167,17 @@
 #define CUTE_PRED_eq_str_COND(actual, expected) (cute_pred_eq_str((actual), (expected)))
 #define CUTE_PRED_eq_str_DESC(actual, expected) CUTE_PP_STRINGIZE(actual) " == " CUTE_PP_STRINGIZE(expected)
 
+// eq_str_n(expected)
+#define CUTE_PRED_eq_str_n(expected) CUTE_PRED_eq_str_n_COND, CUTE_PRED_eq_str_n_DESC, expected
+#define CUTE_PRED_eq_str_n_COND(actual, expected) (cute_pred_eq_str_n((CUTE_PRED_eq_str_n_STR actual), (CUTE_PRED_eq_str_n_LEN actual), (expected)))
+#define CUTE_PRED_eq_str_n_DESC(actual, expected) CUTE_PP_STRINGIZE(CUTE_PRED_eq_str_n_STR actual) " == " CUTE_PP_STRINGIZE(expected)
+#define CUTE_PRED_eq_str_n_STR(str, len) str
+#define CUTE_PRED_eq_str_n_LEN(str, len) len
+
 // contains(expected)
 #define CUTE_PRED_contains(expected) CUTE_PRED_contains_COND, CUTE_PRED_contains_DESC, expected
 #define CUTE_PRED_contains_COND(actual, expected) (cute_pred_contains((actual), (expected)))
-#define CUTE_PRED_contains_DESC(actual, expected) CUTE_PP_STRINGIZE(actual) " == " CUTE_PP_STRINGIZE(expected)
+#define CUTE_PRED_contains_DESC(actual, expected) CUTE_PP_STRINGIZE(actual) " contains " CUTE_PP_STRINGIZE(expected)
 
 // not(pred)
 #define CUTE_PRED_not(pred) CUTE_PRED_not_COND, CUTE_PRED_not_DESC, CUTE_PRED_##pred
@@ -480,6 +487,17 @@ static inline int cute_pred_eq_str(const char *actual, const char *expected) {
         return 0;
     }
     return strcmp(actual, expected) == 0;
+}
+
+static inline int cute_pred_eq_str_n(const char *actual, size_t len, const char *expected) {
+    assert(expected != NULL);
+    if (actual == NULL) {
+        return 0;
+    }
+    if (len != strlen(expected)) {
+        return 0;
+    }
+    return strncmp(actual, expected, len) == 0;
 }
 
 static inline int cute_pred_contains(const char *actual, const char *expected) {
