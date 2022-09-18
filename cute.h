@@ -31,11 +31,13 @@
 
 #define CUTE_ANSI_RED "\x1b[31m"
 #define CUTE_ANSI_GREEN "\x1b[32m"
+#define CUTE_ANSI_YELLOW "\x1b[33m"
 #define CUTE_ANSI_BLUE "\x1b[34m"
 #define CUTE_ANSI_RESET "\x1b[m"
 
 #define CUTE_COLOR_INFO(s) CUTE_ANSI_BLUE s CUTE_ANSI_RESET
 #define CUTE_COLOR_ERROR(s) CUTE_ANSI_RED s CUTE_ANSI_RESET
+#define CUTE_COLOR_WARN(s) CUTE_ANSI_YELLOW s CUTE_ANSI_RESET
 #define CUTE_COLOR_SUCCESS(s) CUTE_ANSI_GREEN s CUTE_ANSI_RESET
 
 #define CUTE_PP_STRINGIZE(x) CUTE_PP_STRINGIZE_I(x)
@@ -296,7 +298,7 @@ static inline void cute_testing_dump_i(const cute_testing_t *t, FILE *fp, unsign
             fprintf(fp, CUTE_COLOR_INFO("%.1f ms"), duration);
             fprintf(fp, "\n");
         } else {
-            fprintf(fp, CUTE_COLOR_ERROR("[FAILED] %s"), t->_.group.name);
+            fprintf(fp, CUTE_COLOR_WARN("[FAILED] %s"), t->_.group.name);
             fprintf(fp, " ");
             fprintf(fp, CUTE_COLOR_INFO("[%u/%u]"), total - failed, total);
             fprintf(fp, " - ");
