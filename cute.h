@@ -160,7 +160,7 @@
 // EXPECT(actual, is(op, x))
 #define CUTE_PRED_is(op, x) CUTE_PRED_is_COND, CUTE_PRED_is_DESC, op, x
 #define CUTE_PRED_is_COND(actual, op, x) ((actual)op(x))
-#define CUTE_PRED_is_DESC(actual, op, x) CUTE_PP_STRINGIZE(actual) " " CUTE_PP_STRINGIZE(op) " " CUTE_PP_STRINGIZE(expected)
+#define CUTE_PRED_is_DESC(actual, op, x) CUTE_PP_STRINGIZE(actual) " " CUTE_PP_STRINGIZE(op) " " CUTE_PP_STRINGIZE(x)
 
 // EXPECT(actual, eq(x))
 #define CUTE_PRED_eq(x) CUTE_PRED_is(==, x)
@@ -192,10 +192,10 @@
 #define CUTE_PRED_eq_str_n_STR(str, len) str
 #define CUTE_PRED_eq_str_n_LEN(str, len) len
 
-// EXPECT(actual, contains(expected))
-#define CUTE_PRED_contains(expected) CUTE_PRED_contains_COND, CUTE_PRED_contains_DESC, expected
-#define CUTE_PRED_contains_COND(actual, expected) (cute_pred_contains((actual), (expected)))
-#define CUTE_PRED_contains_DESC(actual, expected) CUTE_PP_STRINGIZE(actual) " contains " CUTE_PP_STRINGIZE(expected)
+// EXPECT(actual, contains(s))
+#define CUTE_PRED_contains(s) CUTE_PRED_contains_COND, CUTE_PRED_contains_DESC, s
+#define CUTE_PRED_contains_COND(actual, s) (cute_pred_contains((actual), (s)))
+#define CUTE_PRED_contains_DESC(actual, s) CUTE_PP_STRINGIZE(actual) " contains " CUTE_PP_STRINGIZE(s)
 
 // EXPECT(actual, not(pred))
 #define CUTE_PRED_not(pred) CUTE_PRED_not_COND, CUTE_PRED_not_DESC, CUTE_PRED_##pred
