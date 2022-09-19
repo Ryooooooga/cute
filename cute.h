@@ -1,6 +1,8 @@
 #ifndef INCLUDE_CUTE_H
 #define INCLUDE_CUTE_H
 
+#define __STDC_WANT_LIB_EXT2__ 1
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -398,7 +400,9 @@ static inline cute_testing_t *cute_group_start(cute_testing_t *t, const char *fi
 
     va_list args;
     va_start(args, format);
-    vasprintf(&g->_.group.name, format, args);
+    if (vasprintf(&g->_.group.name, format, args) == -1) {
+        g->_.group.name = NULL;
+    }
     va_end(args);
 
     g->_.group.head = NULL;
@@ -434,7 +438,9 @@ static inline void cute_push_assert(cute_testing_t *t, int ok, const char *desc,
     a->_.assertion.message = NULL;
 
     if (format != NULL) {
-        vasprintf(&a->_.assertion.message, format, args);
+        if (vasprintf(&a->_.assertion.message, format, args) == -1) {
+            a->_.assertion.message = NULL;
+        }
     }
 
     *t->_.group.tail = a;
