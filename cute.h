@@ -1,7 +1,9 @@
 #ifndef INCLUDE_CUTE_H
 #define INCLUDE_CUTE_H
 
-#define __STDC_WANT_LIB_EXT2__ 1
+#ifndef __STDC_WANT_LIB_EXT2__
+#    define __STDC_WANT_LIB_EXT2__ 1
+#endif // __STDC_WANT_LIB_EXT2__
 
 #include <assert.h>
 #include <stdarg.h>
