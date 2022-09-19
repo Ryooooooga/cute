@@ -25,6 +25,10 @@
 #    define ASSERT_MSG CUTE_ASSERT_MSG
 #endif // CUTE_NO_ALIASES
 
+#ifndef CUTE_DUMP_VERBOSE
+#    define CUTE_DUMP_VERBOSE 0
+#endif // CUTE_DUMP_VERBOSE
+
 #ifdef __GNUC__
 #    define CUTE_ATTRIBUTE(attr) __attribute__((attr))
 #else // __GNUC__
@@ -299,6 +303,13 @@ static inline void cute_testing_dump_i(const cute_testing_t *t, FILE *fp, unsign
             fprintf(fp, " - ");
             fprintf(fp, CUTE_COLOR_INFO("%.1f ms"), duration);
             fprintf(fp, "\n");
+
+#if CUTE_DUMP_VERBOSE
+            for (const cute_testing_t *u = t->_.group.head; u != NULL; u = u->next) {
+                cute_testing_dump_i(u, fp, depth + 1);
+            }
+#endif
+
         } else {
             fprintf(fp, CUTE_COLOR_WARN("[FAILED] %s"), t->_.group.name);
             fprintf(fp, " ");
