@@ -1,0 +1,39 @@
+name: Test
+
+on: [push]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - ubuntu-gcc
+          - ubuntu-clang
+          - macOS-clang
+        build-type:
+          - Debug
+          - Release
+        include:
+          - target: ubuntu-gcc
+            os: ubuntu-latest
+            cc: gcc
+          - target: ubuntu-clang
+            os: ubuntu-latest
+            cc: clang
+          - target: macOS-clang
+            os: macOS-latest
+            cc: clang
+
+    name: "Test - ${{ matrix.target }}, build-type: ${{ matrix.build-type }}"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" -DCMAKE_C_COMPILER="${{ matrix.cc }}" -DEXAMPLE=on
+
+      - run: cmake --build "${{github.workspace}}/build" --config "${{ matrix.build-type }}"
+
+      - run: ctest -C "${{ matrix.build-type }}" --verbose
+        working-directory: ${{github.workspace}}/build

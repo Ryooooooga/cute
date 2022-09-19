@@ -65,7 +65,7 @@ TEST(numeric) {
     }
 }
 
-TEST(fail) { FAIL(); }
+// TEST(fail) { FAIL(); }
 
 int main(void) {
     RUN_TESTS() {
@@ -73,7 +73,7 @@ int main(void) {
         RUN(string);
         RUN(boolean);
         RUN(numeric);
-        RUN(fail);
+        // RUN(fail);
         return DUMP_RESULT();
     }
 }
