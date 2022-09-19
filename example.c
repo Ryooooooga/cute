@@ -67,8 +67,15 @@ TEST(numeric) {
 
 // TEST(fail) { FAIL(); }
 
+static void setup(void) {}
+
+static void teardown(void) {}
+
 int main(void) {
     RUN_TESTS() {
+        BEFORE_EACH(setup);
+        AFTER_EACH(teardown);
+
         RUN(factorial);
         RUN(string);
         RUN(boolean);

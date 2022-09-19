@@ -16,6 +16,8 @@
 #ifndef CUTE_NO_ALIASES
 #    define TEST CUTE_TEST
 #    define RUN_TESTS CUTE_RUN_TESTS
+#    define BEFORE_EACH CUTE_BEFORE_EACH
+#    define AFTER_EACH CUTE_AFTER_EACH
 #    define DUMP_RESULT CUTE_DUMP_RESULT
 #    define RUN CUTE_RUN
 #    define GROUP CUTE_GROUP
@@ -63,6 +65,12 @@
 
 #define CUTE_RUN_TESTS() CUTE_RUN_TESTS_I(CUTE_TESTING)
 #define CUTE_RUN_TESTS_I(t) for (cute_testing_t * (t) = cute_testing_new(__FILE__, __LINE__); (t); cute_testing_delete((t)), (t) = NULL)
+
+#define CUTE_BEFORE_EACH(f) CUTE_BEFORE_EACH_I(CUTE_TESTING, (f))
+#define CUTE_BEFORE_EACH_I(t, f) cute_before_each((t), (f))
+
+#define CUTE_AFTER_EACH(f) CUTE_AFTER_EACH_I(CUTE_TESTING, (f))
+#define CUTE_AFTER_EACH_I(t, f) cute_after_each((t), (f))
 
 #define CUTE_DUMP_RESULT() CUTE_DUMP_RESULT_I(CUTE_TESTING)
 #define CUTE_DUMP_RESULT_I(t) cute_dump_result((t))
@@ -210,6 +218,8 @@ typedef struct cute_testing_t {
         struct {
             char *name;
             struct cute_testing_t *head, **tail;
+            void (*before_each)(void);
+            void (*after_each)(void);
             clock_t start_time, end_time;
         } group;
 
@@ -231,6 +241,8 @@ static inline cute_testing_t *cute_testing_new(const char *file, unsigned long l
     t->_.group.name = NULL;
     t->_.group.head = NULL;
     t->_.group.tail = &t->_.group.head;
+    t->_.group.before_each = NULL;
+    t->_.group.after_each = NULL;
     t->_.group.start_time = clock();
     t->_.group.end_time = t->_.group.start_time;
 
@@ -256,6 +268,20 @@ static inline void cute_testing_delete(cute_testing_t *t) {
 
         t = next;
     }
+}
+
+static inline void cute_before_each(cute_testing_t *t, void (*f)(void)) {
+    assert(t != NULL);
+    assert(t->type == cute_testing_type_group);
+
+    t->_.group.before_each = f;
+}
+
+static inline void cute_after_each(cute_testing_t *t, void (*f)(void)) {
+    assert(t != NULL);
+    assert(t->type == cute_testing_type_group);
+
+    t->_.group.after_each = f;
 }
 
 static inline int cute_testing_result(const cute_testing_t *t) {
@@ -386,15 +412,27 @@ static inline void cute_run_test(cute_testing_t *t, void (*test_function)(cute_t
     g->_.group.name = strdup(name);
     g->_.group.head = NULL;
     g->_.group.tail = &g->_.group.head;
-    g->_.group.start_time = clock();
-    g->_.group.end_time = g->_.group.start_time;
+    g->_.group.before_each = NULL;
+    g->_.group.after_each = NULL;
+    g->_.group.start_time = 0;
+    g->_.group.end_time = 0;
 
     *t->_.group.tail = g;
     t->_.group.tail = &g->next;
 
+    if (t->_.group.before_each != NULL) {
+        t->_.group.before_each();
+    }
+
+    g->_.group.start_time = clock();
+
     test_function(g);
 
     g->_.group.end_time = clock();
+
+    if (t->_.group.after_each != NULL) {
+        t->_.group.after_each();
+    }
 }
 
 static inline cute_testing_t *cute_group_start(cute_testing_t *t, const char *file, unsigned long long line, const char *format, ...) CUTE_ATTRIBUTE(format(printf, 4, 5));
@@ -420,6 +458,8 @@ static inline cute_testing_t *cute_group_start(cute_testing_t *t, const char *fi
 
     g->_.group.head = NULL;
     g->_.group.tail = &g->_.group.head;
+    g->_.group.before_each = NULL;
+    g->_.group.after_each = NULL;
     g->_.group.start_time = clock();
     g->_.group.end_time = g->_.group.start_time;
 
