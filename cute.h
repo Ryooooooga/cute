@@ -101,7 +101,7 @@
         return;                                                                                                                                                                                        \
     } while (0)
 
-#define CUTE_EXPECT(actual, pred) CUTE_EXPECT_I(CUTE_TESTING, actual, CUTE_PRED_##pred)
+#define CUTE_EXPECT(actual, constraint) CUTE_EXPECT_I(CUTE_TESTING, actual, CUTE_CONSTRAINT_##constraint)
 #define CUTE_EXPECT_I(t, actual, p) CUTE_EXPECT_II(t, actual, p)
 #define CUTE_EXPECT_II(t, actual, cond, desc, ...) CUTE_EXPECT_III(t, cond(actual, __VA_ARGS__), desc(actual, __VA_ARGS__))
 #define CUTE_EXPECT_III(t, ok, s)                                                                                                                                                                      \
@@ -109,7 +109,7 @@
         cute_expect((t), (ok), (s), __FILE__, __LINE__);                                                                                                                                               \
     } while (0)
 
-#define CUTE_EXPECT_MSG(actual, pred, ...) CUTE_EXPECT_MSG_I(CUTE_TESTING, actual, (__VA_ARGS__), CUTE_PRED_##pred)
+#define CUTE_EXPECT_MSG(actual, constraint, ...) CUTE_EXPECT_MSG_I(CUTE_TESTING, actual, (__VA_ARGS__), CUTE_CONSTRAINT_##constraint)
 #define CUTE_EXPECT_MSG_I(t, actual, fmt, p) CUTE_EXPECT_MSG_II(t, actual, fmt, p)
 #define CUTE_EXPECT_MSG_II(t, actual, fmt, cond, desc, ...) CUTE_EXPECT_MSG_III(t, fmt, cond(actual, __VA_ARGS__), desc(actual, __VA_ARGS__))
 #define CUTE_EXPECT_MSG_III(t, fmt, ok, s)                                                                                                                                                             \
@@ -117,7 +117,7 @@
         cute_expect_msg((t), (ok), (s), __FILE__, __LINE__, CUTE_PP_SPREAD(fmt));                                                                                                                      \
     } while (0)
 
-#define CUTE_ASSERT(actual, pred) CUTE_ASSERT_I(CUTE_TESTING, actual, CUTE_PRED_##pred)
+#define CUTE_ASSERT(actual, constraint) CUTE_ASSERT_I(CUTE_TESTING, actual, CUTE_CONSTRAINT_##constraint)
 #define CUTE_ASSERT_I(t, actual, p) CUTE_ASSERT_II(t, actual, p)
 #define CUTE_ASSERT_II(t, actual, cond, desc, ...) CUTE_ASSERT_III(t, cond(actual, __VA_ARGS__), desc(actual, __VA_ARGS__))
 #define CUTE_ASSERT_III(t, ok, s)                                                                                                                                                                      \
@@ -127,7 +127,7 @@
         }                                                                                                                                                                                              \
     } while (0)
 
-#define CUTE_ASSERT_MSG(actual, pred, ...) CUTE_ASSERT_MSG_I(CUTE_TESTING, actual, (__VA_ARGS__), CUTE_PRED_##pred)
+#define CUTE_ASSERT_MSG(actual, constraint, ...) CUTE_ASSERT_MSG_I(CUTE_TESTING, actual, (__VA_ARGS__), CUTE_CONSTRAINT_##constraint)
 #define CUTE_ASSERT_MSG_I(t, actual, fmt, p) CUTE_ASSERT_MSG_II(t, actual, fmt, p)
 #define CUTE_ASSERT_MSG_II(t, actual, fmt, cond, desc, ...) CUTE_ASSERT_MSG_III(t, fmt, cond(actual, __VA_ARGS__), desc(actual, __VA_ARGS__))
 #define CUTE_ASSERT_MSG_III(t, fmt, ok, s)                                                                                                                                                             \
@@ -138,69 +138,69 @@
     } while (0)
 
 // EXPECT(actual, is_true)
-#define CUTE_PRED_is_true CUTE_PRED_is_true_COND, CUTE_PRED_is_true_DESC, _
-#define CUTE_PRED_is_true_COND(actual, _) ((_Bool)(actual))
-#define CUTE_PRED_is_true_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " == true"
+#define CUTE_CONSTRAINT_is_true CUTE_CONSTRAINT_is_true_PRED, CUTE_CONSTRAINT_is_true_DESC, _
+#define CUTE_CONSTRAINT_is_true_PRED(actual, _) ((_Bool)(actual))
+#define CUTE_CONSTRAINT_is_true_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " == true"
 
 // EXPECT(actual, is_false)
-#define CUTE_PRED_is_false CUTE_PRED_is_false_COND, CUTE_PRED_is_false_DESC, _
-#define CUTE_PRED_is_false_COND(actual, _) (!(_Bool)(actual))
-#define CUTE_PRED_is_false_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " == false"
+#define CUTE_CONSTRAINT_is_false CUTE_CONSTRAINT_is_false_PRED, CUTE_CONSTRAINT_is_false_DESC, _
+#define CUTE_CONSTRAINT_is_false_PRED(actual, _) (!(_Bool)(actual))
+#define CUTE_CONSTRAINT_is_false_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " == false"
 
 // EXPECT(actual, is_null)
-#define CUTE_PRED_is_null CUTE_PRED_is_null_COND, CUTE_PRED_is_null_DESC, _
-#define CUTE_PRED_is_null_COND(actual, _) ((actual) == NULL)
-#define CUTE_PRED_is_null_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " == NULL"
+#define CUTE_CONSTRAINT_is_null CUTE_CONSTRAINT_is_null_PRED, CUTE_CONSTRAINT_is_null_DESC, _
+#define CUTE_CONSTRAINT_is_null_PRED(actual, _) ((actual) == NULL)
+#define CUTE_CONSTRAINT_is_null_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " == NULL"
 
 // EXPECT(actual, is_not_null)
-#define CUTE_PRED_is_not_null CUTE_PRED_is_not_null_COND, CUTE_PRED_is_not_null_DESC, _
-#define CUTE_PRED_is_not_null_COND(actual, _) ((actual) != NULL)
-#define CUTE_PRED_is_not_null_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " != NULL"
+#define CUTE_CONSTRAINT_is_not_null CUTE_CONSTRAINT_is_not_null_PRED, CUTE_CONSTRAINT_is_not_null_DESC, _
+#define CUTE_CONSTRAINT_is_not_null_PRED(actual, _) ((actual) != NULL)
+#define CUTE_CONSTRAINT_is_not_null_DESC(actual, _) CUTE_PP_STRINGIZE(actual) " != NULL"
 
 // EXPECT(actual, is(op, x))
-#define CUTE_PRED_is(op, x) CUTE_PRED_is_COND, CUTE_PRED_is_DESC, op, x
-#define CUTE_PRED_is_COND(actual, op, x) ((actual)op(x))
-#define CUTE_PRED_is_DESC(actual, op, x) CUTE_PP_STRINGIZE(actual) " " CUTE_PP_STRINGIZE(op) " " CUTE_PP_STRINGIZE(x)
+#define CUTE_CONSTRAINT_is(op, x) CUTE_CONSTRAINT_is_PRED, CUTE_CONSTRAINT_is_DESC, op, x
+#define CUTE_CONSTRAINT_is_PRED(actual, op, x) ((actual)op(x))
+#define CUTE_CONSTRAINT_is_DESC(actual, op, x) CUTE_PP_STRINGIZE(actual) " " CUTE_PP_STRINGIZE(op) " " CUTE_PP_STRINGIZE(x)
 
 // EXPECT(actual, eq(x))
-#define CUTE_PRED_eq(x) CUTE_PRED_is(==, x)
+#define CUTE_CONSTRAINT_eq(x) CUTE_CONSTRAINT_is(==, x)
 
 // EXPECT(actual, ne(x))
-#define CUTE_PRED_ne(x) CUTE_PRED_is(!=, x)
+#define CUTE_CONSTRAINT_ne(x) CUTE_CONSTRAINT_is(!=, x)
 
 // EXPECT(actual, lt(x))
-#define CUTE_PRED_lt(x) CUTE_PRED_is(<, x)
+#define CUTE_CONSTRAINT_lt(x) CUTE_CONSTRAINT_is(<, x)
 
 // EXPECT(actual, le(x))
-#define CUTE_PRED_le(x) CUTE_PRED_is(<=, x)
+#define CUTE_CONSTRAINT_le(x) CUTE_CONSTRAINT_is(<=, x)
 
 // EXPECT(actual, gt(x))
-#define CUTE_PRED_gt(x) CUTE_PRED_is(>, x)
+#define CUTE_CONSTRAINT_gt(x) CUTE_CONSTRAINT_is(>, x)
 
 // EXPECT(actual, ge(x))
-#define CUTE_PRED_ge(x) CUTE_PRED_is(>=, x)
+#define CUTE_CONSTRAINT_ge(x) CUTE_CONSTRAINT_is(>=, x)
 
 // EXPECT(actual, eq_str(expected))
-#define CUTE_PRED_eq_str(expected) CUTE_PRED_eq_str_COND, CUTE_PRED_eq_str_DESC, expected
-#define CUTE_PRED_eq_str_COND(actual, expected) (cute_pred_eq_str((actual), (expected)))
-#define CUTE_PRED_eq_str_DESC(actual, expected) CUTE_PP_STRINGIZE(actual) " == " CUTE_PP_STRINGIZE(expected)
+#define CUTE_CONSTRAINT_eq_str(expected) CUTE_CONSTRAINT_eq_str_PRED, CUTE_CONSTRAINT_eq_str_DESC, expected
+#define CUTE_CONSTRAINT_eq_str_PRED(actual, expected) (cute_pred_eq_str((actual), (expected)))
+#define CUTE_CONSTRAINT_eq_str_DESC(actual, expected) CUTE_PP_STRINGIZE(actual) " == " CUTE_PP_STRINGIZE(expected)
 
 // EXPECT((actual, actual_len), eq_str_n(expected))
-#define CUTE_PRED_eq_str_n(expected) CUTE_PRED_eq_str_n_COND, CUTE_PRED_eq_str_n_DESC, expected
-#define CUTE_PRED_eq_str_n_COND(actual, expected) (cute_pred_eq_str_n((CUTE_PRED_eq_str_n_STR actual), (CUTE_PRED_eq_str_n_LEN actual), (expected)))
-#define CUTE_PRED_eq_str_n_DESC(actual, expected) CUTE_PP_STRINGIZE(CUTE_PRED_eq_str_n_STR actual) " == " CUTE_PP_STRINGIZE(expected)
-#define CUTE_PRED_eq_str_n_STR(str, len) str
-#define CUTE_PRED_eq_str_n_LEN(str, len) len
+#define CUTE_CONSTRAINT_eq_str_n(expected) CUTE_CONSTRAINT_eq_str_n_PRED, CUTE_CONSTRAINT_eq_str_n_DESC, expected
+#define CUTE_CONSTRAINT_eq_str_n_PRED(actual, expected) (cute_pred_eq_str_n((CUTE_CONSTRAINT_eq_str_n_STR actual), (CUTE_CONSTRAINT_eq_str_n_LEN actual), (expected)))
+#define CUTE_CONSTRAINT_eq_str_n_DESC(actual, expected) CUTE_PP_STRINGIZE(CUTE_CONSTRAINT_eq_str_n_STR actual) " == " CUTE_PP_STRINGIZE(expected)
+#define CUTE_CONSTRAINT_eq_str_n_STR(str, len) str
+#define CUTE_CONSTRAINT_eq_str_n_LEN(str, len) len
 
 // EXPECT(actual, contains(s))
-#define CUTE_PRED_contains(s) CUTE_PRED_contains_COND, CUTE_PRED_contains_DESC, s
-#define CUTE_PRED_contains_COND(actual, s) (cute_pred_contains((actual), (s)))
-#define CUTE_PRED_contains_DESC(actual, s) CUTE_PP_STRINGIZE(actual) " contains " CUTE_PP_STRINGIZE(s)
+#define CUTE_CONSTRAINT_contains(s) CUTE_CONSTRAINT_contains_PRED, CUTE_CONSTRAINT_contains_DESC, s
+#define CUTE_CONSTRAINT_contains_PRED(actual, s) (cute_pred_contains((actual), (s)))
+#define CUTE_CONSTRAINT_contains_DESC(actual, s) CUTE_PP_STRINGIZE(actual) " contains " CUTE_PP_STRINGIZE(s)
 
-// EXPECT(actual, not(pred))
-#define CUTE_PRED_not(pred) CUTE_PRED_not_COND, CUTE_PRED_not_DESC, CUTE_PRED_##pred
-#define CUTE_PRED_not_COND(actual, cond, desc, ...) (!cond((actual), __VA_ARGS__))
-#define CUTE_PRED_not_DESC(actual, cond, desc, ...) "not " desc(actual, __VA_ARGS__)
+// EXPECT(actual, not(constraint))
+#define CUTE_CONSTRAINT_not(constraint) CUTE_CONSTRAINT_not_PRED, CUTE_CONSTRAINT_not_DESC, CUTE_CONSTRAINT_##constraint
+#define CUTE_CONSTRAINT_not_PRED(actual, cond, desc, ...) (!cond((actual), __VA_ARGS__))
+#define CUTE_CONSTRAINT_not_DESC(actual, cond, desc, ...) "not " desc(actual, __VA_ARGS__)
 
 typedef enum cute_testing_type_t {
     cute_testing_type_group,
