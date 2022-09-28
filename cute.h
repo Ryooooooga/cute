@@ -325,7 +325,7 @@ static inline void cute_testing_dump_i(const cute_testing_t *t, FILE *fp, unsign
 
         const double duration = 1e3 * (t->_.group.end_time - t->_.group.start_time) / CLOCKS_PER_SEC;
         if (failed == 0) {
-            fprintf(fp, CUTE_COLOR_SUCCESS("[  OK  ] %s"), t->_.group.name);
+            fprintf(fp, CUTE_COLOR_SUCCESS("[ PASS ] %s"), t->_.group.name);
             fprintf(fp, " ");
             fprintf(fp, CUTE_COLOR_INFO("[%u/%u]"), total - failed, total);
             fprintf(fp, " - ");
@@ -355,7 +355,7 @@ static inline void cute_testing_dump_i(const cute_testing_t *t, FILE *fp, unsign
     }
     case cute_testing_type_assertion: {
         if (t->_.assertion.ok) {
-            fprintf(fp, CUTE_COLOR_SUCCESS("[  OK  ] %s"), t->_.assertion.desc);
+            fprintf(fp, CUTE_COLOR_SUCCESS("[ PASS ] %s"), t->_.assertion.desc);
             if (t->_.assertion.message != NULL) {
                 fprintf(fp, CUTE_COLOR_SUCCESS(": %s"), t->_.assertion.message);
             }
