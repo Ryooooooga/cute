@@ -202,14 +202,18 @@
 #define CUTE_CONSTRAINT_not_PRED(actual, cond, desc, ...) (!cond((actual), __VA_ARGS__))
 #define CUTE_CONSTRAINT_not_DESC(actual, cond, desc, ...) "not " desc(actual, __VA_ARGS__)
 
+typedef struct cute_testing_t cute_testing_t;
+typedef void cute_setup_func_t(void);
+typedef void cute_teardown_func_t(void);
+
 typedef enum cute_testing_type_t {
     cute_testing_type_group,
     cute_testing_type_assertion,
 } cute_testing_type_t;
 
-typedef struct cute_testing_t {
-    struct cute_testing_t *parent;
-    struct cute_testing_t *next;
+struct cute_testing_t {
+    cute_testing_t *parent;
+    cute_testing_t *next;
     cute_testing_type_t type;
     const char *file;
     unsigned long long line;
@@ -217,9 +221,9 @@ typedef struct cute_testing_t {
     union {
         struct {
             char *name;
-            struct cute_testing_t *head, **tail;
-            void (*before_each)(void);
-            void (*after_each)(void);
+            cute_testing_t *head, **tail;
+            cute_setup_func_t *before_each;
+            cute_teardown_func_t *after_each;
             clock_t start_time, end_time;
         } group;
 
@@ -229,7 +233,7 @@ typedef struct cute_testing_t {
             char *message;
         } assertion;
     } _;
-} cute_testing_t;
+};
 
 static inline cute_testing_t *cute_testing_new(const char *file, unsigned long long line) {
     cute_testing_t *t = malloc(sizeof(cute_testing_t));
@@ -270,14 +274,14 @@ static inline void cute_testing_delete(cute_testing_t *t) {
     }
 }
 
-static inline void cute_before_each(cute_testing_t *t, void (*f)(void)) {
+static inline void cute_before_each(cute_testing_t *t, cute_setup_func_t *f) {
     assert(t != NULL);
     assert(t->type == cute_testing_type_group);
 
     t->_.group.before_each = f;
 }
 
-static inline void cute_after_each(cute_testing_t *t, void (*f)(void)) {
+static inline void cute_after_each(cute_testing_t *t, cute_teardown_func_t *f) {
     assert(t != NULL);
     assert(t->type == cute_testing_type_group);
 
