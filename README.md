@@ -5,6 +5,7 @@
 ## Examples
 
 ```c
+#define CUTE_MAIN
 #include "cute.h"
 
 int factorial(int n) {
@@ -17,13 +18,14 @@ int factorial(int n) {
 TEST(factorial) {
     EXPECT(factorial(0), eq(1));
     EXPECT(factorial(1), eq(1));
-    EXPECT_MSG(factorial(5), eq(120), "5! == 120 (actual %d)", factorial(5));
+    EXPECT(factorial(5), eq(120), "5! == 120 (actual %d)", ACTUAL);
 }
 
 TEST(string) {
     const char *s = "Hello, world!";
 
     ASSERT(s, is_not_null);
+    ASSERT(s, not(is_null));
     EXPECT(s, eq_str("Hello, world!"));
     EXPECT((s, 4), eq_str_n("Hell"));
     EXPECT(s, contains("world"));
@@ -31,11 +33,7 @@ TEST(string) {
 }
 
 int main(void) {
-    RUN_TESTS() {
-        RUN(factorial);
-        RUN(string);
-        return DUMP_RESULT();
-    }
+    return RUN_ALL();
 }
 ```
 
