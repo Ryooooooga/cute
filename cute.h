@@ -162,9 +162,6 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
 #define CUTE_PP_IF_0(x, y) y
 #define CUTE_PP_IF_1(x, y) x
 
-#define CUTE_PP_S(x) CUTE_PP_S_I(x)
-#define CUTE_PP_S_I(x) #x
-
 #define CUTE_MATCHER_DESC(mt) CUTE_MATCHER_DESC_I mt
 #define CUTE_MATCHER_DESC_I(desc, trans, pred, data) desc
 #define CUTE_MATCHER_TRANS(mt) CUTE_MATCHER_TRANS_I mt
