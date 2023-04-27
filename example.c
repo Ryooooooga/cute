@@ -1,3 +1,4 @@
+#define CUTE_MAIN
 #include "cute.h"
 
 int factorial(int n) {
@@ -10,7 +11,7 @@ int factorial(int n) {
 TEST(factorial) {
     EXPECT(factorial(0), eq(1));
     EXPECT(factorial(1), eq(1));
-    EXPECT_MSG(factorial(5), eq(120), "5! == 120 (actual %d)", factorial(5));
+    EXPECT(factorial(5), eq(120), "5! == 120 (actual %d)", ACTUAL);
 }
 
 TEST(string) {
@@ -30,7 +31,7 @@ TEST(boolean) {
 }
 
 TEST(numeric) {
-    GROUP("integer") {
+    SUBTEST("integer") {
         int n = 42;
 
         EXPECT(n, eq(42));
@@ -48,7 +49,7 @@ TEST(numeric) {
         EXPECT(n, is(>=, 42));
     }
 
-    GROUP("floating point") {
+    SUBTEST("floating point") {
         double f = 3.14159265;
 
         EXPECT(f, ne(0));
@@ -65,22 +66,21 @@ TEST(numeric) {
     }
 }
 
-// TEST(fail) { FAIL(); }
+#if 0
+TEST(fail) {
+    FAIL();
+}
+#endif
 
-static void setup(void) {}
+static void setup(void) {
+}
 
-static void teardown(void) {}
+static void teardown(void) {
+}
 
 int main(void) {
-    RUN_TESTS() {
-        BEFORE_EACH(setup);
-        AFTER_EACH(teardown);
+    BEFORE_EACH(setup);
+    AFTER_EACH(teardown);
 
-        RUN(factorial);
-        RUN(string);
-        RUN(boolean);
-        RUN(numeric);
-        // RUN(fail);
-        return DUMP_RESULT();
-    }
+    return RUN_ALL();
 }
