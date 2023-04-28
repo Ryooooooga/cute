@@ -163,62 +163,67 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
 #define CUTE_PP_IF_0(x, y) y
 #define CUTE_PP_IF_1(x, y) x
 
+#define CUTE_STR_SPAN(x) CUTE_STR_SPAN_I x
+#define CUTE_STR_SPAN_I(p, n) ((cute_str_span_t){.ptr = p, .len = n})
+
 #define CUTE_MATCHER_DESC(mt) CUTE_MATCHER_DESC_I mt
-#define CUTE_MATCHER_DESC_I(desc, trans, placeholder, pred, data) desc
-#define CUTE_MATCHER_TRANS(mt) CUTE_MATCHER_TRANS_I mt
-#define CUTE_MATCHER_TRANS_I(desc, trans, placeholder, pred, data) trans
-#define CUTE_MATCHER_PLACEHOLDER(mt) CUTE_MATCHER_PLACEHOLDER_I mt
-#define CUTE_MATCHER_PLACEHOLDER_I(desc, trans, placeholder, pred, data) placeholder
+#define CUTE_MATCHER_DESC_I(desc, prepare, pred, data) desc
+#define CUTE_MATCHER_PREPARE(mt) CUTE_MATCHER_PREPARE_I mt
+#define CUTE_MATCHER_PREPARE_I(desc, prepare, pred, data) prepare
 #define CUTE_MATCHER_PRED(mt) CUTE_MATCHER_PRED_I mt
-#define CUTE_MATCHER_PRED_I(desc, trans, placeholder, pred, data) pred
+#define CUTE_MATCHER_PRED_I(desc, prepare, pred, data) pred
 #define CUTE_MATCHER_DATA(mt) CUTE_MATCHER_DATA_I mt
-#define CUTE_MATCHER_DATA_I(desc, trans, placeholder, pred, data) data
+#define CUTE_MATCHER_DATA_I(desc, prepare, pred, data) data
 #define CUTE_MATCHER_ARGS(actual, data) CUTE_MATCHER_ARGS_II(actual, CUTE_MATCHER_ARGS_I data)
 #define CUTE_MATCHER_ARGS_I(...) __VA_ARGS__
 #define CUTE_MATCHER_ARGS_II(actual, ...) (actual __VA_OPT__(, ) __VA_ARGS__)
-#define CUTE_MATCHER_TRANS_ID(x) x
-#define CUTE_MATCHER_TRANS_STR_SPAN(x) CUTE_MATCHER_TRANS_STR_SPAN_I x
-#define CUTE_MATCHER_TRANS_STR_SPAN_I(p, n) ((cute_str_span_t){.ptr = p, .len = n})
-#define CUTE_MATCHER_PLACEHOLDER_0(actual)
-#define CUTE_MATCHER_PLACEHOLDER_1(actual, a1) const __typeof(a1) _1 = (a1);
-#define CUTE_MATCHER_PLACEHOLDER_2(actual, a1, a2)                                                                                                                                                     \
+
+#define CUTE_MATCHER_PREPARE_0(actual) const __typeof(actual) _0 = (actual);
+#define CUTE_MATCHER_PREPARE_1(actual, a1)                                                                                                                                                             \
+    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
+    const __typeof(a1) _1 = (a1);
+#define CUTE_MATCHER_PREPARE_2(actual, a1, a2)                                                                                                                                                         \
+    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
     const __typeof(a1) _1 = (a1);                                                                                                                                                                      \
     const __typeof(a2) _2 = (a2);
-#define CUTE_MATCHER_PLACEHOLDER_3(actual, a1, a2, a3)                                                                                                                                                 \
+#define CUTE_MATCHER_PREPARE_3(actual, a1, a2, a3)                                                                                                                                                     \
+    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
     const __typeof(a1) _1 = (a1);                                                                                                                                                                      \
     const __typeof(a2) _2 = (a2);                                                                                                                                                                      \
     const __typeof(a3) _3 = (a3);
-#define CUTE_MATCHER_PLACEHOLDER_4(actual, a1, a2, a3, a4)                                                                                                                                             \
+#define CUTE_MATCHER_PREPARE_4(actual, a1, a2, a3, a4)                                                                                                                                                 \
+    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
     const __typeof(a1) _1 = (a1);                                                                                                                                                                      \
     const __typeof(a2) _2 = (a2);                                                                                                                                                                      \
     const __typeof(a3) _3 = (a3);                                                                                                                                                                      \
     const __typeof(a4) _4 = (a4);
-#define CUTE_MATCHER_PLACEHOLDER_STR_1(actual, a1) const char *const _1 = (a1);
+#define CUTE_MATCHER_PREPARE_STR_1(actual, a1)                                                                                                                                                         \
+    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
+    const char *const _1 = (a1);
+#define CUTE_MATCHER_PREPARE_STR_N_1(actual, a1)                                                                                                                                                       \
+    const cute_str_span_t _0 = CUTE_STR_SPAN(actual);                                                                                                                                                  \
+    const char *const _1 = (a1);
 
 #define CUTE_MATCH(t, f, actual, ...) CUTE_PP_IF(CUTE_PP_NO_MSG(__VA_ARGS__), CUTE_MATCH_I, CUTE_MATCH_II)(t, f, actual, __VA_ARGS__)
 #define CUTE_MATCH_I(t, f, actual, m) CUTE_MATCH_II(t, f, actual, m, NULL)
 #define CUTE_MATCH_II(t, f, actual, m, ...) CUTE_MATCH_III(t, f, actual, CUTE_MATCHER_##m, __VA_ARGS__)
-#define CUTE_MATCH_III(t, f, actual, mt, ...)                                                                                                                                                          \
-    CUTE_MATCH_IV(t, f, actual, CUTE_MATCHER_DESC(mt), CUTE_MATCHER_TRANS(mt), CUTE_MATCHER_PLACEHOLDER(mt), CUTE_MATCHER_PRED(mt), CUTE_MATCHER_DATA(mt), __VA_ARGS__)
-#define CUTE_MATCH_IV(t, f, actual, desc, trans, placeholder, pred, data, ...)                                                                                                                         \
-    f(t, trans(actual), placeholder CUTE_MATCHER_ARGS(actual, data), desc CUTE_MATCHER_ARGS(actual, data), pred CUTE_MATCHER_ARGS((CUTE_ACTUAL), data), __VA_ARGS__)
+#define CUTE_MATCH_III(t, f, actual, mt, ...) CUTE_MATCH_IV(t, f, CUTE_MATCHER_DESC(mt), CUTE_MATCHER_PREPARE(mt), CUTE_MATCHER_PRED(mt), CUTE_MATCHER_ARGS(actual, CUTE_MATCHER_DATA(mt)), __VA_ARGS__)
+#define CUTE_MATCH_IV(t, f, desc, prepare, pred, args, ...) f(t, desc args, prepare args, pred args, __VA_ARGS__)
 
 #define CUTE_EXPECT(actual, ...) CUTE_EXPECT_I(CUTE_TESTER, actual, __VA_ARGS__)
 #define CUTE_EXPECT_I(t, actual, ...) CUTE_MATCH(t, CUTE_EXPECT_II, actual, __VA_ARGS__)
-#define CUTE_EXPECT_II(t, actual, placeholder, desc, ok, ...)                                                                                                                                          \
+#define CUTE_EXPECT_II(t, desc, prepare, pred, ...)                                                                                                                                                    \
     do {                                                                                                                                                                                               \
-        const __typeof(actual)(CUTE_ACTUAL) = (actual);                                                                                                                                                \
-        placeholder;                                                                                                                                                                                   \
-        cute_tester_expect((t), __FILE__, __LINE__, (desc), (ok), __VA_ARGS__);                                                                                                                        \
+        prepare;                                                                                                                                                                                       \
+        cute_tester_expect((t), __FILE__, __LINE__, (desc), (pred), __VA_ARGS__);                                                                                                                      \
     } while (0)
 
 #define CUTE_ASSERT(actual, ...) CUTE_ASSERT_I(CUTE_TESTER, actual, __VA_ARGS__)
 #define CUTE_ASSERT_I(t, actual, ...) CUTE_MATCH(t, CUTE_ASSERT_II, actual, __VA_ARGS__)
-#define CUTE_ASSERT_II(t, actual, placeholder, desc, ok, ...)                                                                                                                                          \
+#define CUTE_ASSERT_II(t, desc, prepare, pred, ...)                                                                                                                                                    \
     do {                                                                                                                                                                                               \
-        const __typeof(actual)(CUTE_ACTUAL) = (actual);                                                                                                                                                \
-        placeholder;                                                                                                                                                                                   \
-        if (!cute_tester_assert((t), __FILE__, __LINE__, (desc), (ok), __VA_ARGS__)) {                                                                                                                 \
+        prepare;                                                                                                                                                                                       \
+        if (!cute_tester_assert((t), __FILE__, __LINE__, (desc), (pred), __VA_ARGS__)) {                                                                                                               \
             return;                                                                                                                                                                                    \
         }                                                                                                                                                                                              \
     } while (0)
@@ -234,38 +239,40 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
 
 // matchers
 // EXPECT(x, is_true)
-#define CUTE_MATCHER_is_true (CUTE_MATCHER_is_true_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_PLACEHOLDER_0, CUTE_MATCHER_is_true_PRED, ())
+#define CUTE_MATCHER_is_true (CUTE_MATCHER_is_true_DESC, CUTE_MATCHER_PREPARE_0, CUTE_MATCHER_is_true_PRED, ())
 #define CUTE_MATCHER_is_true_DESC(actual) #actual " == true"
-#define CUTE_MATCHER_is_true_PRED(actual) cute_matcher_is_true((actual))
+#define CUTE_MATCHER_is_true_PRED(actual) cute_matcher_is_true(_0)
 
 static inline bool cute_matcher_is_true(bool actual) {
     return actual;
 }
 
 // EXPECT(x, is_false)
-#define CUTE_MATCHER_is_false (CUTE_MATCHER_is_false_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_PLACEHOLDER_0, CUTE_MATCHER_is_false_PRED, ())
+#define CUTE_MATCHER_is_false (CUTE_MATCHER_is_false_DESC, CUTE_MATCHER_PREPARE_0, CUTE_MATCHER_is_false_PRED, ())
 #define CUTE_MATCHER_is_false_DESC(actual) #actual " == false"
-#define CUTE_MATCHER_is_false_PRED(actual) cute_matcher_is_false((actual))
+#define CUTE_MATCHER_is_false_PRED(actual) cute_matcher_is_false(_0)
 
 static inline bool cute_matcher_is_false(bool actual) {
     return !actual;
 }
 
 // EXPECT(x, is_null)
-#define CUTE_MATCHER_is_null (CUTE_MATCHER_is_null_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_PLACEHOLDER_0, CUTE_MATCHER_is_null_PRED, ())
+#define CUTE_MATCHER_is_null (CUTE_MATCHER_is_null_DESC, CUTE_MATCHER_PREPARE_0, CUTE_MATCHER_is_null_PRED, ())
 #define CUTE_MATCHER_is_null_DESC(actual) #actual " == NULL"
-#define CUTE_MATCHER_is_null_PRED(actual) ((actual) == NULL)
+#define CUTE_MATCHER_is_null_PRED(actual) (_0 == NULL)
 
 // EXPECT(x, is_not_null)
-#define CUTE_MATCHER_is_not_null (CUTE_MATCHER_is_not_null_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_PLACEHOLDER_0, CUTE_MATCHER_is_not_null_PRED, ())
+#define CUTE_MATCHER_is_not_null (CUTE_MATCHER_is_not_null_DESC, CUTE_MATCHER_PREPARE_0, CUTE_MATCHER_is_not_null_PRED, ())
 #define CUTE_MATCHER_is_not_null_DESC(actual) #actual " != NULL"
-#define CUTE_MATCHER_is_not_null_PRED(actual) ((actual) != NULL)
+#define CUTE_MATCHER_is_not_null_PRED(actual) (_0 != NULL)
 
 // EXPECT(actual, is(op, x))
-#define CUTE_MATCHER_is(op, x) (CUTE_MATCHER_is_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_is_PLACEHOLDER, CUTE_MATCHER_is_PRED, (op, x))
+#define CUTE_MATCHER_is(op, x) (CUTE_MATCHER_is_DESC, CUTE_MATCHER_is_PREPARE, CUTE_MATCHER_is_PRED, (op, x))
 #define CUTE_MATCHER_is_DESC(actual, op, x) #actual " " #op " " #x
-#define CUTE_MATCHER_is_PLACEHOLDER(actual, op, x) const __typeof(x) _1 = (x);
-#define CUTE_MATCHER_is_PRED(actual, op, x) ((actual)op(_1))
+#define CUTE_MATCHER_is_PREPARE(actual, op, x)                                                                                                                                                         \
+    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
+    const __typeof(x) _1 = (x);
+#define CUTE_MATCHER_is_PRED(actual, op, x) ((_0)op(_1))
 
 // EXPECT(actual, eq(expected))
 #define CUTE_MATCHER_eq(expected) CUTE_MATCHER_is(==, expected)
@@ -286,9 +293,9 @@ static inline bool cute_matcher_is_false(bool actual) {
 #define CUTE_MATCHER_ge(x) CUTE_MATCHER_is(>=, x)
 
 // EXPECT(actual, eq_str(x))
-#define CUTE_MATCHER_eq_str(expected) (CUTE_MATCHER_eq_str_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_PLACEHOLDER_STR_1, CUTE_MATCHER_eq_str_PRED, (expected))
+#define CUTE_MATCHER_eq_str(expected) (CUTE_MATCHER_eq_str_DESC, CUTE_MATCHER_PREPARE_STR_1, CUTE_MATCHER_eq_str_PRED, (expected))
 #define CUTE_MATCHER_eq_str_DESC(actual, expected) #actual " == " #expected
-#define CUTE_MATCHER_eq_str_PRED(actual, expected) cute_matcher_eq_str((actual), (_1))
+#define CUTE_MATCHER_eq_str_PRED(actual, expected) cute_matcher_eq_str(_0, _1)
 
 static inline bool cute_matcher_eq_str(const char *actual, const char *expected) {
     assert(expected != NULL);
@@ -300,10 +307,10 @@ static inline bool cute_matcher_eq_str(const char *actual, const char *expected)
 }
 
 // EXPECT((actual, actual_len), eq_str_n(expected))
-#define CUTE_MATCHER_eq_str_n(expected) (CUTE_MATCHER_eq_str_n_DESC, CUTE_MATCHER_TRANS_STR_SPAN, CUTE_MATCHER_PLACEHOLDER_STR_1, CUTE_MATCHER_eq_str_n_PRED, (expected))
+#define CUTE_MATCHER_eq_str_n(expected) (CUTE_MATCHER_eq_str_n_DESC, CUTE_MATCHER_PREPARE_STR_N_1, CUTE_MATCHER_eq_str_n_PRED, (expected))
 #define CUTE_MATCHER_eq_str_n_DESC(actual, expected) CUTE_MATCHER_eq_str_n_DESC_I actual " == " #expected
 #define CUTE_MATCHER_eq_str_n_DESC_I(p, n) #p "[:" #n "]"
-#define CUTE_MATCHER_eq_str_n_PRED(actual, expected) cute_matcher_eq_str_n((actual), (_1))
+#define CUTE_MATCHER_eq_str_n_PRED(actual, expected) cute_matcher_eq_str_n(_0, _1)
 
 static inline bool cute_matcher_eq_str_n(cute_str_span_t actual, const char *expected) {
     assert(expected != NULL);
@@ -318,9 +325,9 @@ static inline bool cute_matcher_eq_str_n(cute_str_span_t actual, const char *exp
 }
 
 // EXPECT(actual, contains(s))
-#define CUTE_MATCHER_contains(s) (CUTE_MATCHER_contains_DESC, CUTE_MATCHER_TRANS_ID, CUTE_MATCHER_PLACEHOLDER_STR_1, CUTE_MATCHER_contains_PRED, (s))
+#define CUTE_MATCHER_contains(s) (CUTE_MATCHER_contains_DESC, CUTE_MATCHER_PREPARE_STR_1, CUTE_MATCHER_contains_PRED, (s))
 #define CUTE_MATCHER_contains_DESC(actual, s) #actual " contains " #s
-#define CUTE_MATCHER_contains_PRED(actual, s) cute_matcher_contains((actual), (_1))
+#define CUTE_MATCHER_contains_PRED(actual, s) cute_matcher_contains(_0, _1)
 
 static inline bool cute_matcher_contains(const char *actual, const char *s) {
     assert(s != NULL);
@@ -333,13 +340,10 @@ static inline bool cute_matcher_contains(const char *actual, const char *s) {
 
 // EXPECT(actual, not(matcher))
 #define CUTE_MATCHER_not(matcher) CUTE_MATCHER_not_I(CUTE_MATCHER_##matcher)
-#define CUTE_MATCHER_not_I(m) (CUTE_MATCHER_not_DESC, CUTE_MATCHER_TRANS(m), CUTE_MATCHER_not_PLACEHOLDER, CUTE_MATCHER_not_PRED, m)
-#define CUTE_MATCHER_not_DESC(actual, desc, trans, placeholder, pred, data) CUTE_MATCHER_not_DESC_I(desc, CUTE_MATCHER_ARGS(actual, data))
-#define CUTE_MATCHER_not_DESC_I(desc, args) "not " desc args
-#define CUTE_MATCHER_not_PLACEHOLDER(actual, desc, trans, placeholder, pred, data) CUTE_MATCHER_not_PLACEHOLDER_I(placeholder, CUTE_MATCHER_ARGS(actual, data))
-#define CUTE_MATCHER_not_PLACEHOLDER_I(placeholder, args) placeholder args
-#define CUTE_MATCHER_not_PRED(actual, desc, trans, placeholder, pred, data) CUTE_MATCHER_not_PRED_I(pred, CUTE_MATCHER_ARGS(actual, data))
-#define CUTE_MATCHER_not_PRED_I(pred, args) (!(pred args))
+#define CUTE_MATCHER_not_I(m) (CUTE_MATCHER_not_DESC, CUTE_MATCHER_not_PREPARE, CUTE_MATCHER_not_PRED, m)
+#define CUTE_MATCHER_not_DESC(actual, desc, prepare, pred, data) "not " desc CUTE_MATCHER_ARGS(actual, data)
+#define CUTE_MATCHER_not_PREPARE(actual, desc, prepare, pred, data) prepare CUTE_MATCHER_ARGS(actual, data)
+#define CUTE_MATCHER_not_PRED(actual, desc, prepare, pred, data) (!(pred CUTE_MATCHER_ARGS(actual, data)))
 
 #ifdef CUTE_MAIN
 #    define CUTE_RUN_ALL() cute_run_all(__FILE__, __LINE__)
