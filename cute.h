@@ -154,8 +154,9 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
     for (cute_tester_t *_cute_tester_saved = (t), _cute_tester_subtester, (*t) = cute_tester_subtest_start(_cute_tester_saved, &_cute_tester_subtester, __FILE__, __LINE__, __VA_ARGS__); (t);         \
          cute_tester_subtest_finish(&_cute_tester_subtester), (t) = NULL)
 
-#define CUTE_PP_NO_MSG(...) CUTE_PP_NO_MSG_I(__VA_ARGS__, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, )
-#define CUTE_PP_NO_MSG_I(x, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, ...) _10
+#define CUTE_PP_NO_MSG(...) CUTE_PP_NO_MSG_I(__VA_ARGS__, )
+#define CUTE_PP_NO_MSG_I(m, ...) CUTE_PP_NO_MSG_II(__VA_OPT__(0, ) 1, )
+#define CUTE_PP_NO_MSG_II(x, ...) x
 
 #define CUTE_PP_IF(c, x, y) CUTE_PP_IF_I(c, x, y)
 #define CUTE_PP_IF_I(c, x, y) CUTE_PP_IF_##c(x, y)
