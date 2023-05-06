@@ -292,6 +292,11 @@ static inline bool cute_matcher_is_false(bool actual) {
 // EXPECT(actual, ge(x))
 #define CUTE_MATCHER_ge(x) CUTE_MATCHER_is(>=, x)
 
+// EXPECT(actual, near(expected, eps))
+#define CUTE_MATCHER_near(expected, eps) (CUTE_MATCHER_near_DESC, CUTE_MATCHER_PREPARE_2, CUTE_MATCHER_near_PRED, (expected, eps))
+#define CUTE_MATCHER_near_DESC(actual, expected, eps) #actual " == " #expected " ± " #eps
+#define CUTE_MATCHER_near_PRED(actual, expected, eps) ((_1 - _2) <= _0 && _0 <= (_1 + _2))
+
 // EXPECT(actual, eq_str(x))
 #define CUTE_MATCHER_eq_str(expected) (CUTE_MATCHER_eq_str_DESC, CUTE_MATCHER_PREPARE_STR_1, CUTE_MATCHER_eq_str_PRED, (expected))
 #define CUTE_MATCHER_eq_str_DESC(actual, expected) #actual " == " #expected

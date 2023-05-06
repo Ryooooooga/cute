@@ -1,6 +1,8 @@
 #define CUTE_MAIN
 #include "cute.h"
 
+#include <math.h>
+
 int factorial(int n) {
     if (n > 0) {
         return n * factorial(n - 1);
@@ -63,6 +65,8 @@ TEST(numeric) {
         EXPECT(f, is(<=, 3.15));
         EXPECT(f, is(>, 3.14));
         EXPECT(f, is(>=, 3.14));
+
+        EXPECT(sqrt(2.0), near(1.4142, 1e-4));
     }
 }
 
