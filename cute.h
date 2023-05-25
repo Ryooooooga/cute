@@ -21,7 +21,6 @@
 
 #ifndef CUTE_NO_ALIASES
 #    define TEST CUTE_TEST
-#    define REGISTER CUTE_REGISTER
 #    define BEFORE_EACH CUTE_BEFORE_EACH
 #    define AFTER_EACH CUTE_AFTER_EACH
 #    define SUBTEST CUTE_SUBTEST
@@ -127,25 +126,22 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
 #define CUTE_ACTUAL _0
 #define CUTE_TEST_FUNC(tname) cute_test_##tname##_run
 #define CUTE_TEST_INIT(tname) cute_test_##tname##_init
-#define CUTE_TEST_DATA(tname) cute_test_##tname##_data
 
 #define CUTE_TEST(tname) CUTE_TEST_I(CUTE_TESTER, tname)
 #define CUTE_TEST_I(t, tname)                                                                                                                                                                          \
     static void CUTE_TEST_FUNC(tname)(cute_tester_t * (t));                                                                                                                                            \
-    static void CUTE_TEST_INIT(tname)(void) CUTE_GNU_ATTR((constructor));                                                                                                                              \
-    static cute_test_def_t CUTE_TEST_DATA(tname) = {                                                                                                                                                   \
-        .next = NULL,                                                                                                                                                                                  \
-        .testname = #tname,                                                                                                                                                                            \
-        .file = __FILE__,                                                                                                                                                                              \
-        .line = __LINE__,                                                                                                                                                                              \
-        .run = &CUTE_TEST_FUNC(tname),                                                                                                                                                                 \
-    };                                                                                                                                                                                                 \
-    static void CUTE_TEST_INIT(tname)(void) {                                                                                                                                                          \
-        CUTE_REGISTER(tname);                                                                                                                                                                          \
+    CUTE_GNU_ATTR((constructor)) static void CUTE_TEST_INIT(tname)(void) {                                                                                                                             \
+        static cute_test_def_t test_def = {                                                                                                                                                            \
+            .next = NULL,                                                                                                                                                                              \
+            .testname = #tname,                                                                                                                                                                        \
+            .file = __FILE__,                                                                                                                                                                          \
+            .line = __LINE__,                                                                                                                                                                          \
+            .run = &CUTE_TEST_FUNC(tname),                                                                                                                                                             \
+        };                                                                                                                                                                                             \
+        cute_register(&test_def);                                                                                                                                                                      \
     }                                                                                                                                                                                                  \
     static void CUTE_TEST_FUNC(tname)(CUTE_GNU_ATTR((unused)) cute_tester_t * (t))
 
-#define CUTE_REGISTER(tname) cute_register(&CUTE_TEST_DATA(tname));
 #define CUTE_BEFORE_EACH(setup) cute_before_each((setup))
 #define CUTE_AFTER_EACH(teardown) cute_after_each((teardown))
 
