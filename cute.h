@@ -159,6 +159,15 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
 #define CUTE_PP_IF_0(x, y) y
 #define CUTE_PP_IF_1(x, y) x
 
+#define CUTE_PP_IS_TUPLE(x) CUTE_PP_IS_TUPLE_II(CUTE_PP_IS_TUPLE_I x)
+#define CUTE_PP_IS_TUPLE_I(...) 1
+#define CUTE_PP_IS_TUPLE_II(x) CUTE_PP_IS_TUPLE_III(x)
+#define CUTE_PP_IS_TUPLE_III(x) CUTE_PP_IS_TUPLE_IV(CUTE_PP_IS_TUPLE_##x)
+#define CUTE_PP_IS_TUPLE_IV(x) CUTE_PP_IS_TUPLE_V(x)
+#define CUTE_PP_IS_TUPLE_V(r, _) r
+#define CUTE_PP_IS_TUPLE_1 1,
+#define CUTE_PP_IS_TUPLE_CUTE_PP_IS_TUPLE_I 0,
+
 #define CUTE_STR_SPAN(x) CUTE_STR_SPAN_I x
 #define CUTE_STR_SPAN_I(p, n) ((cute_str_span_t){.ptr = p, .len = n})
 
@@ -193,10 +202,11 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
     const __typeof(a2) _2 = (a2);                                                                                                                                                                      \
     const __typeof(a3) _3 = (a3);                                                                                                                                                                      \
     const __typeof(a4) _4 = (a4);
-#define CUTE_MATCHER_PREPARE_STR_1(t, actual, a1)                                                                                                                                                      \
-    const __typeof(actual) _0 = (actual);                                                                                                                                                              \
+#define CUTE_MATCHER_PREPARE_STR_1(t, actual, a1) CUTE_PP_IF(CUTE_PP_IS_TUPLE(actual), CUTE_MATCHER_PREPARE_STR_1_SPAN, CUTE_MATCHER_PREPARE_STR_1_STR)(t, actual, a1)
+#define CUTE_MATCHER_PREPARE_STR_1_STR(t, actual, a1)                                                                                                                                                  \
+    const char *const _0 = (actual);                                                                                                                                                                   \
     const char *const _1 = (a1);
-#define CUTE_MATCHER_PREPARE_STR_N_1(t, actual, a1)                                                                                                                                                    \
+#define CUTE_MATCHER_PREPARE_STR_1_SPAN(t, actual, a1)                                                                                                                                                 \
     const cute_str_span_t _0 = CUTE_STR_SPAN(actual);                                                                                                                                                  \
     const char *const _1 = (a1);
 
@@ -296,10 +306,16 @@ static inline bool cute_matcher_is_false(cute_tester_t *t, bool actual) {
 #define CUTE_MATCHER_near_DESC(t, actual, expected, eps) #actual " == " #expected " ± " #eps
 #define CUTE_MATCHER_near_PRED(t, actual, expected, eps) ((_1 - _2) <= _0 && _0 <= (_1 + _2))
 
-// EXPECT(actual, eq_str(x))
+// EXPECT(actual, eq_str(x)) or
+// EXPECT((actual_ptr, actual_len), eq_str(x))
 #define CUTE_MATCHER_eq_str(expected) (CUTE_MATCHER_eq_str_DESC, CUTE_MATCHER_PREPARE_STR_1, CUTE_MATCHER_eq_str_PRED, (expected))
-#define CUTE_MATCHER_eq_str_DESC(t, actual, expected) #actual " == " #expected
-#define CUTE_MATCHER_eq_str_PRED(t, actual, expected) cute_matcher_eq_str(t, _0, _1)
+#define CUTE_MATCHER_eq_str_DESC(t, actual, expected) CUTE_PP_IF(CUTE_PP_IS_TUPLE(actual), CUTE_MATCHER_eq_str_DESC_SPAN, CUTE_MATCHER_eq_str_DESC_STR)(t, actual, expected)
+#define CUTE_MATCHER_eq_str_DESC_STR(t, actual, expected) #actual " == " #expected
+#define CUTE_MATCHER_eq_str_DESC_SPAN(t, actual, expected) CUTE_MATCHER_eq_str_DESC_SPAN_I actual " == " #expected
+#define CUTE_MATCHER_eq_str_DESC_SPAN_I(p, n) #p "[:" #n "]"
+#define CUTE_MATCHER_eq_str_PRED(t, actual, expected) CUTE_PP_IF(CUTE_PP_IS_TUPLE(actual), CUTE_MATCHER_eq_str_PRED_SPAN, CUTE_MATCHER_eq_str_PRED_STR)(t, actual, expected)
+#define CUTE_MATCHER_eq_str_PRED_STR(t, actual, expected) cute_matcher_eq_str(t, _0, _1)
+#define CUTE_MATCHER_eq_str_PRED_SPAN(t, actual, expected) cute_matcher_eq_str_span(t, _0, _1)
 
 static inline bool cute_matcher_eq_str(cute_tester_t *t, const char *actual, const char *expected) {
     assert(expected != NULL);
@@ -311,13 +327,7 @@ static inline bool cute_matcher_eq_str(cute_tester_t *t, const char *actual, con
     return strcmp(actual, expected) == 0;
 }
 
-// EXPECT((actual, actual_len), eq_str_n(expected))
-#define CUTE_MATCHER_eq_str_n(expected) (CUTE_MATCHER_eq_str_n_DESC, CUTE_MATCHER_PREPARE_STR_N_1, CUTE_MATCHER_eq_str_n_PRED, (expected))
-#define CUTE_MATCHER_eq_str_n_DESC(t, actual, expected) CUTE_MATCHER_eq_str_n_DESC_I actual " == " #expected
-#define CUTE_MATCHER_eq_str_n_DESC_I(p, n) #p "[:" #n "]"
-#define CUTE_MATCHER_eq_str_n_PRED(t, actual, expected) cute_matcher_eq_str_n(t, _0, _1)
-
-static inline bool cute_matcher_eq_str_n(cute_tester_t *t, cute_str_span_t actual, const char *expected) {
+static inline bool cute_matcher_eq_str_span(cute_tester_t *t, cute_str_span_t actual, const char *expected) {
     assert(expected != NULL);
     (void)t;
 
