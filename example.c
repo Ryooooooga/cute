@@ -13,7 +13,7 @@ int factorial(int n) {
 TEST(factorial) {
     EXPECT(factorial(0), eq(1));
     EXPECT(factorial(1), eq(1));
-    EXPECT(factorial(5), eq(120), "5! == %d (actual %d)", _1, ACTUAL);
+    EXPECT(factorial(5), eq(120), "5! == %d (actual %d)", _1, _0);
 }
 
 TEST(string) {

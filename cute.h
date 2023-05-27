@@ -20,15 +20,14 @@
 #endif // __GNUC__
 
 #ifndef CUTE_NO_ALIASES
-#    define TEST CUTE_TEST
-#    define BEFORE_EACH CUTE_BEFORE_EACH
-#    define AFTER_EACH CUTE_AFTER_EACH
-#    define SUBTEST CUTE_SUBTEST
-#    define EXPECT CUTE_EXPECT
-#    define ASSERT CUTE_ASSERT
-#    define FAIL CUTE_FAIL
-#    define ACTUAL CUTE_ACTUAL
-#    define RUN_ALL CUTE_RUN_ALL
+#    define TEST(tname) CUTE_TEST(tname)
+#    define BEFORE_EACH(setup) CUTE_BEFORE_EACH(setup)
+#    define AFTER_EACH(teardown) CUTE_AFTER_EACH(teardown)
+#    define SUBTEST(...) CUTE_SUBTEST(__VA_ARGS__)
+#    define EXPECT(actual, ...) CUTE_EXPECT(actual, __VA_ARGS__)
+#    define ASSERT(actual, ...) CUTE_ASSERT(actual, __VA_ARGS__)
+#    define FAIL(...) CUTE_FAIL(__VA_ARGS__)
+#    define RUN_ALL() CUTE_RUN_ALL()
 #endif // CUTE_NO_ALIASES
 
 #ifndef CUTE_VERBOSE
@@ -123,7 +122,6 @@ static inline bool cute_tester_assert(cute_tester_t *t, const char *file, unsign
 static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned long long line, const char *format, ...) CUTE_GNU_ATTR((format(printf, 4, 5)));
 
 #define CUTE_TESTER _cute_tester
-#define CUTE_ACTUAL _0
 #define CUTE_TEST_FUNC(tname) cute_test_##tname##_run
 #define CUTE_TEST_INIT(tname) cute_test_##tname##_init
 
