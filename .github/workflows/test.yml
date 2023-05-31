@@ -11,6 +11,9 @@ jobs:
           - ubuntu-gcc
           - ubuntu-clang
           - macOS-clang
+        c-standard:
+          - "99"
+          - "11"
         build-type:
           - Debug
           - Release
@@ -25,13 +28,13 @@ jobs:
             os: macOS-latest
             cc: clang
 
-    name: "Test - ${{ matrix.target }}, build-type: ${{ matrix.build-type }}"
+    name: "Test - ${{ matrix.target }}, c-standard: ${{ matrix.c-standard }}, build-type: ${{ matrix.build-type }}"
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - run: cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" -DCMAKE_C_COMPILER="${{ matrix.cc }}" -DEXAMPLE=on
+      - run: cmake -B "${{github.workspace}}/build" -DCMAKE_C_STANDARD="${{ matrix.c-standard }}" -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" -DCMAKE_C_COMPILER="${{ matrix.cc }}" -DEXAMPLE=on
 
       - run: cmake --build "${{github.workspace}}/build" --config "${{ matrix.build-type }}"
 

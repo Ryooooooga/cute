@@ -41,8 +41,10 @@ typedef struct cute_tester_t cute_tester_t;
 typedef struct cute_str_span_t cute_str_span_t;
 
 typedef void cute_test_func_t(cute_tester_t *);
-typedef void cute_setup_func_t(void);
-typedef void cute_teardown_func_t(void);
+typedef void cute_setup_func_0_t(void);
+typedef void cute_setup_func_1_t(const char *tname);
+typedef void cute_teardown_func_0_t(void);
+typedef void cute_teardown_func_1_t(const char *tname);
 
 struct cute_test_def_t {
     cute_test_def_t *next;
@@ -54,8 +56,24 @@ struct cute_test_def_t {
 
 struct cute_test_list_t {
     cute_test_def_t *head, **tail;
-    cute_setup_func_t *setup;
-    cute_teardown_func_t *teardown;
+
+    struct {
+        bool enabled;
+        unsigned char argc;
+        union {
+            cute_setup_func_0_t *_0;
+            cute_setup_func_1_t *_1;
+        } func;
+    } setup;
+
+    struct {
+        bool enabled;
+        unsigned char argc;
+        union {
+            cute_teardown_func_0_t *_0;
+            cute_teardown_func_1_t *_1;
+        } func;
+    } teardown;
 };
 
 typedef enum cute_result_type_t {
@@ -98,8 +116,10 @@ struct cute_str_span_t {
 extern cute_test_list_t cute_test_list;
 
 static inline void cute_register(cute_test_def_t *test);
-static inline void cute_before_each(cute_setup_func_t *setup);
-static inline void cute_after_each(cute_teardown_func_t *teardown);
+static inline void cute_before_each_0(cute_setup_func_0_t *setup);
+static inline void cute_before_each_1(cute_setup_func_1_t *setup);
+static inline void cute_after_each_0(cute_teardown_func_0_t *teardown);
+static inline void cute_after_each_1(cute_teardown_func_1_t *teardown);
 
 static inline cute_result_t *cute_result_new_subtest(cute_result_t *parent, const char *file, unsigned long long line, const char *format, ...) CUTE_GNU_ATTR((format(printf, 4, 5)));
 static inline cute_result_t *cute_result_new_subtest_v(cute_result_t *parent, const char *file, unsigned long long line, const char *format, va_list args);
@@ -140,8 +160,14 @@ static inline void cute_tester_fail(cute_tester_t *t, const char *file, unsigned
     }                                                                                                                                                                                                  \
     static void CUTE_TEST_FUNC(tname)(CUTE_GNU_ATTR((unused)) cute_tester_t * (t))
 
-#define CUTE_BEFORE_EACH(setup) cute_before_each((setup))
-#define CUTE_AFTER_EACH(teardown) cute_after_each((teardown))
+#if __STDC_VERSION__ >= 201112L
+// C11 support
+#    define CUTE_BEFORE_EACH(setup) _Generic(&(setup), cute_setup_func_0_t *: cute_before_each_0, cute_setup_func_1_t *: cute_before_each_1)(&(setup))
+#    define CUTE_AFTER_EACH(teardown) _Generic(&(teardown), cute_teardown_func_0_t *: cute_after_each_0, cute_teardown_func_1_t *: cute_after_each_1)(&(teardown))
+#else
+#    define CUTE_BEFORE_EACH(setup) cute_before_each_1((cute_setup_func_1_t *)&(setup))
+#    define CUTE_AFTER_EACH(teardown) cute_after_each_1((cute_teardown_func_1_t *)&(teardown))
+#endif
 
 #define CUTE_SUBTEST(...) CUTE_SUBTEST_I(CUTE_TESTER, __VA_ARGS__)
 #define CUTE_SUBTEST_I(t, ...)                                                                                                                                                                         \
@@ -374,12 +400,32 @@ static inline void cute_register(cute_test_def_t *test) {
     cute_test_list.tail = &test->next;
 }
 
-static inline void cute_before_each(cute_setup_func_t *setup) {
-    cute_test_list.setup = setup;
+static inline void cute_before_each_0(cute_setup_func_0_t *setup) {
+    assert(setup != NULL);
+    cute_test_list.setup.enabled = true;
+    cute_test_list.setup.argc = 0;
+    cute_test_list.setup.func._0 = setup;
 }
 
-static inline void cute_after_each(cute_teardown_func_t *teardown) {
-    cute_test_list.teardown = teardown;
+static inline void cute_before_each_1(cute_setup_func_1_t *setup) {
+    assert(setup != NULL);
+    cute_test_list.setup.enabled = true;
+    cute_test_list.setup.argc = 1;
+    cute_test_list.setup.func._1 = setup;
+}
+
+static inline void cute_after_each_0(cute_teardown_func_0_t *teardown) {
+    assert(teardown != NULL);
+    cute_test_list.teardown.enabled = true;
+    cute_test_list.teardown.argc = 0;
+    cute_test_list.teardown.func._0 = teardown;
+}
+
+static inline void cute_after_each_1(cute_teardown_func_1_t *teardown) {
+    assert(teardown != NULL);
+    cute_test_list.teardown.enabled = true;
+    cute_test_list.teardown.argc = 1;
+    cute_test_list.teardown.func._1 = teardown;
 }
 
 static inline cute_result_t *cute_result_new_subtest(cute_result_t *parent, const char *file, unsigned long long line, const char *format, ...) {
@@ -680,16 +726,24 @@ static inline void cute_run_test(cute_tester_t *t, const cute_test_def_t *test) 
     cute_tester_t u;
     cute_tester_init(&u, subtest);
 
-    if (cute_test_list.setup != NULL) {
-        cute_test_list.setup();
+    if (cute_test_list.setup.enabled) {
+        if (cute_test_list.setup.argc == 0) {
+            cute_test_list.setup.func._0();
+        } else {
+            cute_test_list.setup.func._1(test->testname);
+        }
     }
 
     cute_result_subtest_start(subtest);
     test->run(&u);
     cute_result_subtest_finish(subtest);
 
-    if (cute_test_list.teardown != NULL) {
-        cute_test_list.teardown();
+    if (cute_test_list.teardown.enabled) {
+        if (cute_test_list.teardown.argc == 0) {
+            cute_test_list.teardown.func._0();
+        } else {
+            cute_test_list.teardown.func._1(test->testname);
+        }
     }
 }
 

@@ -74,10 +74,22 @@ TEST(fail) {
     // FAIL();
 }
 
-static void setup(void) {
+bool is_target;
+
+TEST(setup_target) {
+    EXPECT(is_target, is_true);
+}
+
+TEST(not_setup_target) {
+    EXPECT(is_target, is_false);
+}
+
+static void setup(const char *testname) {
+    is_target = strcmp(testname, "setup_target") == 0;
 }
 
 static void teardown(void) {
+    is_target = false;
 }
 
 int main(void) {
