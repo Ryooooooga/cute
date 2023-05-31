@@ -9,4 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: DoozyX/clang-format-lint-action@v0.14
+      - uses: DoozyX/clang-format-lint-action@v0.16.2
+        with:
+          clangFormatVersion: "16"
