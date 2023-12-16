@@ -1,10 +1,6 @@
 #ifndef INCLUDE_CUTE_H
 #define INCLUDE_CUTE_H
 
-#ifndef __STDC_WANT_LIB_EXT2__
-#    define __STDC_WANT_LIB_EXT2__ 1
-#endif // __STDC_WANT_LIB_EXT2__
-
 #include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -451,8 +447,16 @@ static inline cute_result_t *cute_result_new_subtest_v(cute_result_t *parent, co
     r->_.subtest.ok = -1;
 
     if (format != NULL) {
-        if (vasprintf(&r->message, format, args) == -1) {
-            r->message = NULL;
+        va_list args_copy;
+        va_copy(args_copy, args);
+        const int size = vsnprintf(NULL, 0, format, args_copy);
+        va_end(args_copy);
+
+        if (size >= 0) {
+            r->message = (char *)malloc(size + 1);
+            if (r->message != NULL) {
+                vsnprintf(r->message, size + 1, format, args);
+            }
         }
     }
 
@@ -471,8 +475,16 @@ static inline cute_result_t *cute_result_new_assert_v(cute_result_t *parent, con
     r->_.assert.ok = ok;
 
     if (format != NULL) {
-        if (vasprintf(&r->message, format, args) == -1) {
-            r->message = NULL;
+        va_list args_copy;
+        va_copy(args_copy, args);
+        const int size = vsnprintf(NULL, 0, format, args_copy);
+        va_end(args_copy);
+
+        if (size >= 0) {
+            r->message = (char *)malloc(size + 1);
+            if (r->message != NULL) {
+                vsnprintf(r->message, size + 1, format, args);
+            }
         }
     }
 
